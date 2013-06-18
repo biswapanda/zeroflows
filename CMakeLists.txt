@@ -51,7 +51,32 @@ find_library(ZK_LIBRARIES libzookeeper_st.so ${ZK_LIBRARY_DIRS})
 ### Build instructions ###
 ##########################
 
+set(ABI_VERSION 0)
+
 set(CMAKE_C_FLAGS "-g -pipe -Wall -Wextra -std=c99")
+
+if (CMAKE_COMPILER_IS_GNUCC)
+    MESSAGE("GCC ...")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-variadic-macros")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wsequence-point")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wredundant-decls")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wshadow")
+    if(CMAKE_C_COMPILER_VERSION MATCHES ".*4\\.[6789].*")
+        MESSAGE("GCC >= 4.6")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wcomment")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wmain")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wparentheses")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wfloat-equal")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wunsafe-loop-optimizations")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wmissing-prototypes")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wunused-but-set-parameter")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wunused-but-set-variable")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wframe-larger-than=1024")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wswitch-enum")
+    endif()
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -finline-limit=1024")
+endif()
+
 set(CMAKE_C_FLAGS_DEBUG          "-O0 -fno-inline")
 set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -fno-inline")
 set(CMAKE_C_FLAGS_RELEASE        "-O2")
@@ -70,7 +95,6 @@ add_definitions(-D_FILE_OFFSET_BITS=64)
 add_definitions(-DG_ERRORCHECK_MUTEXES)
 add_definitions(-DG_DISABLE_DEPRECATED=1)
 
-include_directories(BEFORE .)
 include_directories(AFTER
         ${ZMQ_INCLUDE_DIRS}
         ${ZK_INCLUDE_DIRS}/zookeeper
@@ -80,31 +104,6 @@ link_directories(
         ${ZMQ_LIBRARY_DIRS}
         ${ZK_LIBRARY_DIRS})
 
-add_library(zsock SHARED 
-        zservice.c zsock.c zsock_config.c zutils.c zsock.h
-        zreactor.c zreactor.h
-        macros.h)
-target_link_libraries(zsock
-        ${ZMQ_LIBRARIES}
-        ${JANSSON_LIBRARIES}
-        ${ZK_LIBRARIES}
-        ${GLIB2_LIBRARIES})
-
-add_library(main_utils STATIC
-        common.c common.h
-        zsock.h zreactor.h
-        macros.h)
-target_link_libraries(main_utils zsock
-        ${GLIB2_LIBRARIES})
-
-add_executable(zservice main_service.c macros.h zsock.h zreactor.h)
-target_link_libraries(zservice zsock main_utils)
-
-add_executable(zpipe main_pipe.c macros.h zsock.h zreactor.h)
-target_link_libraries(zpipe zsock main_utils)
-
-install(TARGETS zsock zservice zpipe
-        LIBRARY DESTINATION ${LD_LIBDIR}
-        ARCHIVE DESTINATION ${LD_LIBDIR}
-        RUNTIME DESTINATION bin)
+add_subdirectory(./src)
+add_subdirectory(./examples)
 

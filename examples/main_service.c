@@ -48,13 +48,12 @@ _skip_tail(struct zsock_s *zs)
         zmq_msg_t msg;
         zmq_msg_init(&msg);
         int rc = zmq_msg_recv(&msg, zs->zs, ZMQ_NOBLOCK);
+        zmq_msg_close(&msg);
         if (rc < 0)
             break;
-        //g_debug("ZSOCK [%s] -> %d [%.*s]", zs->fullname, rc,
-        //        (int) zmq_msg_size(&msg), (char*) zmq_msg_data(&msg));
-        zmq_msg_close(&msg);
     }
-    //g_debug("ZSOCK [%s] skip %u", zs->fullname, count);
+
+    g_debug("ZSOCK [%s] skip %u", zs->fullname, count);
 }
 
 static void
