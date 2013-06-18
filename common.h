@@ -1,8 +1,24 @@
-#ifndef TECHFORUM_common_h
-# define TECHFORUM_common_h 1
+#ifndef ZEROFLOWS_common_h
+# define ZEROFLOWS_common_h 1
 # include <glib.h>
 # include <zmq.h>
 # include <zookeeper.h>
+
+// Zero-Flows, actors plumbing with ZeroMQ & ZooKeeper
+// Copyright (C) 2013 Jean-Francois SMIGIELSKI and all the contributors
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as
+// published by the Free Software Foundation, either version 3 of the
+// License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 void uuid_randomize(gchar *d, gsize dl);
 
@@ -52,4 +68,4 @@ void zclt_env_init(const gchar *type, const gchar *target,
 
 void zclt_env_close(struct zclt_env_s *ctx);
 
-#endif // TECHFORUM_common_h
+#endif // ZEROFLOWS_common_h
