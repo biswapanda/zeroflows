@@ -61,20 +61,89 @@ uuid_randomize(gchar *d, gsize dl)
         d[dl-1] = g_ascii_toupper(d[dl-1]);
 }
 
+static gboolean
+_has_forbidden_chars(const gchar *s)
+{
+    gchar forbidden[256];
+
+    if (!s)
+        return FALSE;
+
+    // mark special characters forbidden in ZooKeeper paths
+    memset(forbidden, 0, 256);
+    forbidden['/'] = 1;
+    forbidden[','] = 1;
+    forbidden[';'] = 1;
+
+    while (*s) {
+        if (!g_ascii_isprint(*s)
+                || g_ascii_isspace(*s)
+                || forbidden[(guint8)*s])
+            return TRUE;
+    }
+    return FALSE;
+}
+
+static gchar*
+_zenv_get_zk_url(void)
+{
+    // First, try from the environment
+    const gchar *zk_env = g_getenv(ZKURL_KEY_ENV);
+    if (NULL != zk_env)
+        return g_strdup(zk_env);
+
+    // Now try in several configuration files
+    gchar *result = NULL;
+    gchar *u = NULL;
+    gsize u_len = 0;
+
+    if (g_file_get_contents(ZKFILE_LOCAL_PATH, &u, &u_len, NULL))
+        result = g_strndup(u, u_len);
+    else if (g_file_get_contents(ZKFILE_HOME_PATH, &u, &u_len, NULL))
+        result = g_strndup(u, u_len);
+    else if (g_file_get_contents(ZKFILE_GLOBAL_PATH, &u, &u_len, NULL))
+        result = g_strndup(u, u_len);
+
+    if (u) {
+        g_free(u);
+        u = NULL;
+    }
+    return result;
+}
+
 void
 zenv_init(struct zenv_s *zenv)
 {
-    g_assert(zenv != NULL);
 
+    g_assert(zenv != NULL);
     memset(zenv, 0, sizeof(*zenv));
 
-    // TODO get the UUID/CELL from a configuration or the environment
-    zenv->cell = g_strdup("none");
-    zenv->uuid = g_malloc0(33);
-    uuid_randomize(zenv->uuid, 32);
+    // Init the "cell" from the environment if present or set a default value
+    const gchar *cell_env = g_getenv(CELL_KEY_ENV);
+    const gchar *uuid_env = g_getenv(UUID_KEY_ENV);
+    gchar *zkurl = _zenv_get_zk_url();
 
-    // TODO get the ZK url from a configuration or the environment
-    zenv->zh = zookeeper_init("127.0.0.1:2181", NULL, 5000, NULL, NULL, 0);
+    if (!zkurl)
+        g_error("ZooKeeper not configured, found none of %s, %s, %s",
+                ZKFILE_LOCAL_PATH, ZKFILE_HOME_PATH, ZKFILE_GLOBAL_PATH);
+    if (_has_forbidden_chars(cell_env))
+        g_error("CELL has invalid characters");
+    if (_has_forbidden_chars(uuid_env))
+        g_error("UUID has invalid characters");
+
+    if (NULL != cell_env)
+        zenv->cell = g_strdup(cell_env);
+    else
+        zenv->cell = g_strdup(CELL_VALUE_DEFAULT);
+
+    if (NULL != uuid_env)
+        zenv->uuid = g_strdup(uuid_env);
+    else {
+        zenv->uuid = g_malloc0(33);
+        uuid_randomize(zenv->uuid, 33);
+    }
+
+    zenv->zh = zookeeper_init(zkurl, NULL, 5000, NULL, NULL, 0);
     g_assert(zenv->zh != NULL);
 
     zenv->zctx = zmq_ctx_new();

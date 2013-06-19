@@ -23,12 +23,40 @@
 #  define ASSERT(X)
 # endif
 
-#ifndef GQUARK
+#ifndef  GQUARK
 # define GQUARK() g_quark_from_static_string(G_LOG_DOMAIN)
 #endif
 
-#ifndef NEWERROR
+#ifndef  NEWERROR
 # define NEWERROR(Code,Fmt,...) g_error_new(GQUARK(), (Code), (Fmt), ##__VA_ARGS__)
+#endif
+
+#ifndef  ZKURL_KEY_ENV
+# define ZKURL_KEY_ENV "ZOOKEEPER_URL"
+#endif
+
+#ifndef  ZKFILE_GLOBAL_PATH
+# define ZKFILE_GLOBAL_PATH "/etc/zeroconf.conf"
+#endif
+
+#ifndef  ZKFILE_HOME_PATH
+# define ZKFILE_HOME_PATH "~/.zeroconf.conf"
+#endif
+
+#ifndef  ZKFILE_LOCAL_PATH
+# define ZKFILE_LOCAL_PATH "./.zeroconf.conf"
+#endif
+
+#ifndef  UUID_KEY_ENV
+# define UUID_KEY_ENV "UUID"
+#endif
+
+#ifndef  CELL_KEY_ENV
+# define CELL_KEY_ENV "CELL"
+#endif
+
+#ifndef  CELL_VALUE_DEFAULT
+# define CELL_VALUE_DEFAULT "none"
 #endif
 
 #define ZK_DEBUG(FMT,...) g_log("ZK", G_LOG_LEVEL_DEBUG, FMT, ##__VA_ARGS__)
