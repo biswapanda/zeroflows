@@ -1,5 +1,5 @@
 #ifndef G_LOG_DOMAIN
-# define G_LOG_DOMAIN "zsock"
+# define G_LOG_DOMAIN "zeroflows"
 #endif
 
 // Zero-Flows, actors plumbing with ZeroMQ & ZooKeeper
@@ -18,12 +18,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <string.h>
 #include <errno.h>
 
-#include <glib.h>
-
 #include "./macros.h"
-#include "./zreactor.h"
+#include "./zeroflows.h"
 
 struct zreactor_s
 {
@@ -82,15 +81,19 @@ zreactor_destroy(struct zreactor_s *zr)
 void
 zreactor_stop(struct zreactor_s *zr)
 {
-    ASSERT(zr != NULL);
+    g_assert(zr != NULL);
     zr->running = FALSE;
 }
 
 void
-zreactor_add_zk(struct zreactor_s *zr, zhandle_t *zh)
+zreactor_add_zk(struct zreactor_s *zr, void *zh)
 {
     struct zmon_s mon;
     zmq_pollitem_t item = {NULL,-1,0,0};
+
+    g_assert(zr != NULL);
+    g_assert(zh != NULL);
+    memset(&mon, 0, sizeof(struct zmon_s));
 
     mon.type = ZMT_ZK;
     mon.data.zh = zh;
@@ -104,6 +107,12 @@ zreactor_add_zmq(struct zreactor_s *zr, void *s, int *evt,
 {
     struct zmon_s mon;
     zmq_pollitem_t item = {NULL,-1,0,0};
+
+    g_assert(zr != NULL);
+    g_assert(s != NULL);
+    g_assert(evt != NULL);
+    g_assert(fn != NULL);
+    memset(&mon, 0, sizeof(struct zmon_s));
 
     mon.type = ZMT_ZMQ;
     mon.data.zmq.evt = evt;
@@ -124,6 +133,11 @@ zreactor_add_fd(struct zreactor_s *zr, int fd, int *evt,
     struct zmon_s mon;
     zmq_pollitem_t item = {NULL,-1,0,0};
 
+    g_assert(zr != NULL);
+    g_assert(fd >= 0);
+    g_assert(evt != NULL);
+    g_assert(fn != NULL);
+
     mon.type = ZMT_FD;
     mon.data.fd.evt = evt;
     mon.data.fd.ctx = fnu;
@@ -141,7 +155,6 @@ _manage_one_event(struct zreactor_s *zr, guint i)
     int rc, evt;
     zmq_pollitem_t *item = &g_array_index(zr->items, zmq_pollitem_t, i);
     struct zmon_s *mon = &g_array_index(zr->monitors, struct zmon_s, i);
-    //g_debug("EVT [%u] EVT[%x/%x]", i, item->revents, item->events);
 
     switch (mon->type) {
 
@@ -252,10 +265,10 @@ _zreactor_run_step(struct zreactor_s *zr)
 int
 zreactor_run(struct zreactor_s *zr)
 {
-    ASSERT(zr != NULL);
-    ASSERT(zr->items != NULL);
-    ASSERT(zr->monitors != NULL);
-    ASSERT(zr->items->len == zr->monitors->len);
+    g_assert(zr != NULL);
+    g_assert(zr->items != NULL);
+    g_assert(zr->monitors != NULL);
+    g_assert(zr->items->len == zr->monitors->len);
     while (zr->running && !_zreactor_run_step(zr)) {}
     g_debug("Reactor LOOP exited");
     return zr->running;

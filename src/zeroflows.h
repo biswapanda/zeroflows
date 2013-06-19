@@ -1,5 +1,5 @@
-#ifndef ZEROFLOWS_zsock_h
-# define ZEROFLOWS_zsock_h 1
+#ifndef ZEROFLOWS_zeroflows_h
+# define ZEROFLOWS_zeroflows_h 1
 
 // Zero-Flows, actors plumbing with ZeroMQ & ZooKeeper
 // Copyright (C) 2013 Jean-Francois SMIGIELSKI and all the contributors
@@ -63,6 +63,9 @@ struct cfg_srv_s* zservice_parse_config_from_path(const gchar *path);
 
 //------------------------------------------------------------------------------
 
+/**
+ * TODO document
+ */
 struct zconnect_s
 {
     gchar *type;
@@ -77,17 +80,19 @@ struct zconnect_s
     struct zsock_s *zs; // the socket it belongs to
 };
 
+/**
+ * TODO document
+ */
 struct zsock_s
 {
     void *zctx; // a ZMQ context 
     void *zs; // ZMQ socket
     zhandle_t *zh; // ZooKeeper handle
 
-    gchar *fullname;
     gchar *localname;
+    gchar *fullname; // often, srvtype . localname
     const gchar *puuid;
     const gchar *pcell;
-    gboolean paused_input;
 
     GTree *connect_real; // char* -> gulong
     GTree *connect_cfg; // char* -> (struct zconnect_s*)
@@ -98,19 +103,39 @@ struct zsock_s
     int evt; // to be monitored ZMQ_POLLIN|ZMQ_POLLOUT
 };
 
+/**
+ * TODO document
+ */
 struct zservice_s
 {
     void *zctx; // a ZMQ context 
     struct zreactor_s *zr; // the reactor managing this reactor
     zhandle_t *zh; // the ZooKeeper handle
 
+    const gchar *puuid;
+    const gchar *pcell;
+
     gpointer on_config_data;
     void (*on_config)(struct zservice_s *zsrv, gpointer data);
 
     gchar *srvtype;
     GTree *socks;
-    gchar uuid[32];
-    gchar cell[32];
+};
+
+struct zreactor_s;
+
+/**
+ * One structure to gather all the mandatory elements of a working context,
+ * and to easily create zsock's and zservice's.
+ */
+struct zenv_s
+{
+    zhandle_t *zh; // ZooKeeper handle
+    void *zctx; // ZeroMQ context
+    struct zreactor_s *zr;
+
+    gchar *uuid;
+    gchar *cell;
 };
 
 //------------------------------------------------------------------------------
@@ -131,7 +156,8 @@ void zsock_connect(struct zsock_s *zsock, const gchar *type,
 
 //------------------------------------------------------------------------------
 
-struct zservice_s* zservice_create(void *zctx, zhandle_t *zh, const gchar *srvtype);
+struct zservice_s* zservice_create(void *zctx, zhandle_t *zh,
+        const gchar *srvtype, const gchar *uuid, const gchar *cell);
 
 void zservice_destroy(struct zservice_s *zsrv);
 
@@ -143,4 +169,38 @@ void zservice_register_in_reactor(struct zreactor_s *zr,
 void zservice_on_config(struct zservice_s *zsrv, gpointer u,
         void (*hook)(struct zservice_s*, gpointer));
 
-#endif // ZEROFLOWS_zsock_h
+//------------------------------------------------------------------------------
+
+typedef int (*zreactor_fn_fd)  (void *u, int fd, int e);
+
+typedef int (*zreactor_fn_zmq) (void *u, void *s, int e);
+
+struct zreactor_s* zreactor_create(void);
+
+void zreactor_destroy(struct zreactor_s *zr);
+
+void zreactor_stop(struct zreactor_s *zr);
+
+int zreactor_run(struct zreactor_s *zr);
+
+void zreactor_add_zk(struct zreactor_s *zr, void *zh);
+
+void zreactor_add_fd(struct zreactor_s *zr, int fd, int *evt,
+        zreactor_fn_fd fn, gpointer fnu);
+
+void zreactor_add_zmq(struct zreactor_s *zr, void *s, int *evt,
+        zreactor_fn_zmq fn, gpointer fnu);
+
+//------------------------------------------------------------------------------
+
+void zenv_init(struct zenv_s *zenv);
+
+void zenv_close(struct zenv_s *zenv);
+
+struct zservice_s* zenv_create_service(struct zenv_s *zenv,
+        const gchar *srvtype);
+
+struct zsock_s* zenv_create_socket(struct zenv_s *zenv, const gchar *name,
+        const gchar *ztype);
+
+#endif // ZEROFLOWS_zeroflows_h

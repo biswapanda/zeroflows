@@ -1,5 +1,5 @@
 #ifndef G_LOG_DOMAIN
-# define G_LOG_DOMAIN "zsock"
+# define G_LOG_DOMAIN "zeroflows"
 #endif
 
 // Zero-Flows, actors plumbing with ZeroMQ & ZooKeeper
@@ -25,10 +25,7 @@
 #include <zookeeper.h>
 
 #include "./macros.h"
-#include "./zsock.h"
-#include "./zreactor.h"
-
-#define ZK_DEBUG(FMT,...) g_log("ZK", G_LOG_LEVEL_DEBUG, FMT, ##__VA_ARGS__)
+#include "./zeroflows.h"
 
 static struct zsock_s *
 zservice_create_socket(struct zservice_s *zsrv, struct cfg_sock_s *itf)
@@ -47,12 +44,13 @@ zservice_create_socket(struct zservice_s *zsrv, struct cfg_sock_s *itf)
                 errno, strerror(errno));
     }
 
+    // TODO do not subscribe to *any* message, but (maybe) filter on a config
     if (ztype == ZMQ_SUB) {
         int rc = zmq_setsockopt(zs, ZMQ_SUBSCRIBE, "", 0);
         g_assert(rc == 0);
     }
 
-    struct zsock_s *zsock = zsock_create(zsrv->uuid, zsrv->cell);
+    struct zsock_s *zsock = zsock_create(zsrv->puuid, zsrv->pcell);
     zsock->zs = zs;
     zsock->zh = zsrv->zh;
     zsock->zctx = zsrv->zctx;
@@ -161,7 +159,8 @@ zservice_register_in_reactor(struct zreactor_s *zr, struct zservice_s *zsrv)
 }
 
 struct zservice_s*
-zservice_create(void *zctx, zhandle_t *zh, const gchar *srvtype)
+zservice_create(void *zctx, zhandle_t *zh, const gchar *srvtype,
+        const gchar *uuid, const gchar *cell)
 {
     ASSERT(zctx != NULL);
     ASSERT(zh != NULL);
@@ -171,6 +170,8 @@ zservice_create(void *zctx, zhandle_t *zh, const gchar *srvtype)
     zsrv->zh = zh;
     zsrv->zctx = zctx;
     zsrv->srvtype = g_strdup(srvtype);
+    zsrv->puuid = uuid;
+    zsrv->pcell = cell;
     zsrv->socks = g_tree_new_full(strcmp3, NULL, g_free,
             (GDestroyNotify)zsock_destroy);
 

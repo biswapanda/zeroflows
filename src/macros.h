@@ -31,4 +31,6 @@
 # define NEWERROR(Code,Fmt,...) g_error_new(GQUARK(), (Code), (Fmt), ##__VA_ARGS__)
 #endif
 
+#define ZK_DEBUG(FMT,...) g_log("ZK", G_LOG_LEVEL_DEBUG, FMT, ##__VA_ARGS__)
+
 #endif // ZEROFLOWS_macros_h

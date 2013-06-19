@@ -1,5 +1,5 @@
 #ifndef G_LOG_DOMAIN
-# define G_LOG_DOMAIN "zsock"
+# define G_LOG_DOMAIN "zeroflows"
 #endif
 
 // Zero-Flows, actors plumbing with ZeroMQ & ZooKeeper
@@ -18,8 +18,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <glib.h>
+
 #include "./macros.h"
-#include "./zsock.h"
+#include "./zeroflows.h"
 
 gint
 strcmp3(gconstpointer p0, gconstpointer p1, gpointer ignored)

@@ -22,12 +22,6 @@
 #include <string.h>
 #include <errno.h>
 
-#include <glib.h>
-#include <zmq.h>
-#include <zookeeper.h>
-
-#include "./zreactor.h"
-#include "./zsock.h"
 #include "./common.h"
 
 struct zsrv_env_s ctx;
@@ -53,7 +47,7 @@ _skip_tail(struct zsock_s *zs)
             break;
     }
 
-    g_debug("ZSOCK [%s] skip %u", zs->fullname, count);
+    //g_debug("ZSOCK [%s] skip %u", zs->fullname, count);
 }
 
 static void

@@ -1,5 +1,5 @@
 #ifndef G_LOG_DOMAIN
-# define G_LOG_DOMAIN "zsock"
+# define G_LOG_DOMAIN "zeroflows"
 #endif
 
 // Zero-Flows, actors plumbing with ZeroMQ & ZooKeeper
@@ -23,7 +23,7 @@
 #include <jansson.h>
 #include <glib.h>
 
-#include "./zsock.h"
+#include "./zeroflows.h"
 
 #define JGET(R,O,F,T)do {\
     (R) = json_object_get(O,F); \

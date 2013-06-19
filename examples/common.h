@@ -4,6 +4,8 @@
 # include <zmq.h>
 # include <zookeeper.h>
 
+# include <zeroflows.h>
+
 // Zero-Flows, actors plumbing with ZeroMQ & ZooKeeper
 // Copyright (C) 2013 Jean-Francois SMIGIELSKI and all the contributors
 //
@@ -20,23 +22,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-void uuid_randomize(gchar *d, gsize dl);
-
 void main_set_log_handlers(void);
-
-
-// Environment common to all entities
-
-struct zenv_s
-{
-    zhandle_t *zh; // ZooKeeper handle
-    void *zctx; // ZeroMQ context
-    struct zreactor_s *zr;
-};
-
-void zenv_init(struct zenv_s *zenv);
-
-void zenv_close(struct zenv_s *zenv);
 
 
 // Environment common to standalone services
@@ -57,9 +43,6 @@ void zsrv_env_close(struct zsrv_env_s *ctx);
 struct zclt_env_s
 {
     struct zenv_s zenv;
-
-    gchar uuid[32];
-    gchar cell[32];
     struct zsock_s *zsock;
 };
 

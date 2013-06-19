@@ -24,13 +24,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#include <glib.h>
-#include <zmq.h>
-#include <zookeeper.h>
-
-#include "./macros.h"
-#include "./zreactor.h"
-#include "./zsock.h"
 #include "./common.h"
 
 static struct zclt_env_s ctx;
@@ -85,7 +78,7 @@ on_input(void *c, int fd, int evt)
     zmq_msg_close(&msg);
 
     (void) rc;
-    ASSERT(rc == l);
+    g_assert(rc == l);
     return 0;
 }
 
