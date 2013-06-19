@@ -53,7 +53,7 @@ find_library(ZK_LIBRARIES libzookeeper_st.so ${ZK_LIBRARY_DIRS})
 
 set(ABI_VERSION 0)
 
-set(CMAKE_C_FLAGS "-g -pipe -Wall -Wextra -std=c99")
+set(CMAKE_C_FLAGS "-pipe -Wall -Wextra -std=c99")
 
 if (CMAKE_COMPILER_IS_GNUCC)
     MESSAGE("GCC ...")
@@ -77,8 +77,8 @@ if (CMAKE_COMPILER_IS_GNUCC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -finline-limit=1024")
 endif()
 
-set(CMAKE_C_FLAGS_DEBUG          "-O0 -fno-inline")
-set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -fno-inline")
+set(CMAKE_C_FLAGS_DEBUG          "-g -O0 -fno-inline")
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "-g -O2 -fno-inline")
 set(CMAKE_C_FLAGS_RELEASE        "-O2")
 set(CMAKE_C_FLAGS_MINSIZEREL     "-Os -s")
 
