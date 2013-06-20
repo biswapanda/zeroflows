@@ -18,7 +18,7 @@ This is not a competitor for Actors frameworks as [Akka](http://akka.io) (even i
 
 **Zero-Flows** belongs to Jean-François SMIGIELSKI and all the contributors to the project, and is distributed under the terms of the [GNU Lesser General Public License](http://www.gnu.org/licenses/agpl.html).
 
-![License](http://www.gnu.org/graphics/license-logos-by-christian-candena-cc-by.svg)
+![License](http://www.gnu.org/graphics/lgplv3-88x31.png)
 
 
 ## Third-party dependencies
