@@ -28,6 +28,7 @@
 #include <fcntl.h>
 
 #include "./common.h"
+#include "./common_pipe_out.h"
 
 static struct zclt_env_s ctx;
 static int in_evt = 0;
@@ -93,15 +94,15 @@ sighandler_stop(int s)
 }
 
 int
-main(int argc, char **argv)
+main_common_pipe_out(const gchar *ztype, int argc, char **argv)
 {
     main_set_log_handlers();
-    if (argc < 3) {
-        g_error("Usage: %s ZTYPE TARGET", argv[0]);
+    if (argc < 2) {
+        g_error("Usage: %s TARGET", argv[0]);
         return 1;
     }
 
-    zclt_env_init(argv[1], argv[2], &ctx);
+    zclt_env_init(ztype, argv[1], &ctx);
     signal(SIGTERM, sighandler_stop);
     signal(SIGQUIT, sighandler_stop);
     signal(SIGINT, sighandler_stop);

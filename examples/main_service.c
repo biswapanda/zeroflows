@@ -50,7 +50,7 @@ _skip_tail(struct zsock_s *zs)
             break;
     }
 
-    //g_debug("ZSOCK [%s] skip %u", zs->fullname, count);
+    g_debug("ZSOCK [%s] skip %u", zs->fullname, count);
 }
 
 static void
