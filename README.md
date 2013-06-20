@@ -16,7 +16,9 @@ This is not a competitor for Actors frameworks as [Akka](http://akka.io) (even i
 
 ## License
 
-**Zero-Flows** belongs to Jean-François SMIGIELSKI and all the contributors to the project, and is distributed under the terms of the [GNU Affero GPL](http://www.gnu.org/licenses/agpl.html).
+**Zero-Flows** belongs to Jean-François SMIGIELSKI and all the contributors to the project, and is distributed under the terms of the [GNU Lesser General Public License](http://www.gnu.org/licenses/agpl.html).
+
+![License](http://www.gnu.org/graphics/license-logos-by-christian-candena-cc-by.svg)
 
 
 ## Third-party dependencies
@@ -26,7 +28,12 @@ This is not a competitor for Actors frameworks as [Akka](http://akka.io) (even i
 * [Jansson](http://www.digip.org/jansson/) >= 2.4
 * [Gnome library 2](https://developer.gnome.org/glib/) >= 2.30
 
-[ZeroMQ](http://zeromq.org) provides a taste a brokerless BUS. The elementary transport unit is a  message, and **Zero-Flows** lets you benefit of PUSH/PULL (1 to Any) and PUB/SUB (1 to Any) patterns of communcation. [Apache ZooKeeper](http://zookeeper.apache.org) is used to configure the nodes and discover the peer nodes. We onlty use the single-threaded C client API provided with the official Zookeeper distribution. [Jansson](http://www.digip.org/jansson/) is used to parse the JSON format used into Zookeeper. The [Gnome library 2](https://developer.gnome.org/glib/) provides easy-to-use data structures and a lot of necessary features.
+[ZeroMQ](http://zeromq.org) provides a taste of a brokerless BUS, the elementary transport unit is a message.
+**Zero-Flows** lets you benefit of PUSH/PULL (1 to Any) and PUB/SUB (1 to Any) patterns of communcation.
+[Apache ZooKeeper](http://zookeeper.apache.org) is used to configure the nodes and discover the peer nodes.
+We only use the single-threaded C client API provided with the official Zookeeper distribution.
+[Jansson](http://www.digip.org/jansson/) is used to parse the JSON format used into Zookeeper.
+The [Gnome library 2](https://developer.gnome.org/glib/) provides easy-to-use data structures and a lot of necessary features.
 
 
 ## Installation
@@ -43,3 +50,4 @@ This is not a competitor for Actors frameworks as [Akka](http://akka.io) (even i
     [nobody@localhost /tmp]$ make install
 
 Feel free to read the [cmake documentation](http://cmake.org) if you want to a complete information about the configuration directives currently available.
+
