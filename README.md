@@ -12,6 +12,7 @@ A *service* is a set of public *endpoints*, some bond to network adresses, some 
 
 This is not a competitor for Actors frameworks as [Akka](http://akka.io) (even if it achieves the same goal), because it is much more raw and simplistic.
 
+![Banner](http://jfsmig.github.io/zeroflows/images/banner.svg)
 
 ## License
 
