@@ -1,5 +1,6 @@
-#ifndef ZEROFLOWS_common_pipe_out_h
-# define ZEROFLOWS_common_pipe_out_h 1
+#ifndef G_LOG_DOMAIN
+# define G_LOG_DOMAIN "zs.cli"
+#endif
 
 // Zero-Flows, actors plumbing with ZeroMQ & ZooKeeper
 // Copyright (C) 2013 Jean-Francois SMIGIELSKI and all the contributors
@@ -20,8 +21,14 @@
 // and of the GNU Lesser General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
-# include <glib.h>
+#include <stdio.h>
 
-int main_common_pipe_out(const gchar *ztype, int argc, char **argv);
+#include "./common_pipe_in.h"
 
-#endif // ZEROFLOWS_common_pipe_out_h
+int
+main(int argc, char **argv)
+{
+    freopen("/dev/null", "r", stdin);
+    return main_common_pipe_in("zmq:SUB", argc, argv);
+}
+

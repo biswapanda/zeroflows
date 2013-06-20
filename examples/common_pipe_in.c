@@ -1,5 +1,5 @@
 #ifndef G_LOG_DOMAIN
-# define G_LOG_DOMAIN "zs.srv"
+# define G_LOG_DOMAIN "zs.cli"
 #endif
 
 // Zero-Flows, actors plumbing with ZeroMQ & ZooKeeper
@@ -21,59 +21,67 @@
 // and of the GNU Lesser General Public License along with this program.
 // If not, see <http://www.gnu.org/licenses/>.
 
-#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
-#include <errno.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #include "./common.h"
+#include "./common_pipe_in.h"
 
-struct zsrv_env_s ctx;
-struct zsock_s *zs_in;
-struct zsock_s *zs_out;
+static struct zclt_env_s ctx;
+static int out_evt = 0;
 
 static void
-_on_event_in(struct zsock_s *zs)
+_manage_in(struct zsock_s *zs)
 {
-    int rci, rco, flags;
-    size_t smore, count_bytes = 0;
+    int rc;
     guint count_messages = 0;
+    size_t count_bytes = 0;
 
     g_assert(zs != NULL);
-    g_assert(zs == zs_in);
     g_assert(zs->zs != NULL);
 
     for (;;) {
         zmq_msg_t msg;
         zmq_msg_init(&msg);
-        rci = zmq_msg_recv(&msg, zs->zs, ZMQ_NOBLOCK);
-        if (rci < 0) {
+        rc = zmq_msg_recv(&msg, zs->zs, ZMQ_NOBLOCK);
+
+        if (rc < 0) {
             zmq_msg_close(&msg);
             break;
         }
 
         ++ count_messages;
         count_bytes += zmq_msg_size(&msg);
-
-        flags = 0;
-        smore = sizeof(flags);
-        zmq_getsockopt(zs->zs, ZMQ_RCVMORE, &flags, &smore);
-        flags = ZMQ_NOBLOCK | (flags?ZMQ_SNDMORE:0);
-        
-        if (0 > (rco = zmq_msg_send(&msg, zs_out->zs, flags)))
-            g_debug("ZMQ rco = %d : (%d) %s", rco, errno, strerror(errno));
+        fwrite(zmq_msg_data(&msg), zmq_msg_size(&msg), 1, stdout);
         zmq_msg_close(&msg);
-
-        g_assert(rci == rco);
     }
 
+    fflush(stdout);
     g_debug("ZSOCK [%s] managed %u / %"G_GSIZE_FORMAT, zs->fullname,
             count_messages, count_bytes);
 }
 
-static void
-_on_event_out(struct zsock_s *zs)
+static int
+on_output(void *c, int fd, int evt)
 {
-    g_debug("ZSOCK [%s] ready for output", zs->fullname);
+    FILE *out = c;
+    (void) fd, (void) evt;
+
+    if (!zsock_ready(ctx.zsock)) {
+        out_evt = 0;
+        return 0;
+    }
+
+    if (ferror(out) || feof(out)) {
+        g_debug("EOF!");
+        zreactor_stop(ctx.zenv.zr);
+        return -1;
+    }
+
+    return 0;
 }
 
 static void
@@ -83,41 +91,26 @@ sighandler_stop(int s)
     signal(s, sighandler_stop);
 }
 
-static void
-_on_zservice_configured(struct zservice_s *zsrv, gpointer u)
-{
-    (void) u;
-    g_debug("ZSRV configured, now applying event handlers");
-
-    zs_in = zservice_get_socket(zsrv, "in");
-    zs_in->ready_in = _on_event_in;
-    zs_in->evt = ZMQ_POLLIN;
-
-    zs_out = zservice_get_socket(zsrv, "out");
-    zs_out->ready_out = _on_event_out;
-    zs_out->evt = ZMQ_POLLOUT;
-}
-
 int
-main(int argc, char **argv)
+main_common_pipe_in(const gchar *ztype, int argc, char **argv)
 {
     main_set_log_handlers();
     if (argc < 2) {
-        g_error("Usage: %s SRVTYPE", argv[0]);
+        g_error("Usage: %s TARGET", argv[0]);
         return 1;
     }
 
-    zs_in = zs_out = NULL;
-    zsrv_env_init(argv[1], &ctx);
-
+    zclt_env_init(ztype, argv[1], &ctx);
     signal(SIGTERM, sighandler_stop);
     signal(SIGQUIT, sighandler_stop);
     signal(SIGINT, sighandler_stop);
+    ctx.zsock->evt = ZMQ_POLLIN;
+    ctx.zsock->ready_in = _manage_in;
 
-    zservice_on_config(ctx.zsrv, ctx.zsrv, _on_zservice_configured);
-
+    fcntl(0, F_SETFL, O_NONBLOCK|fcntl(0, F_GETFL));
+    zreactor_add_fd(ctx.zenv.zr, 1, &out_evt, on_output, stdout);
     int rc = zreactor_run(ctx.zenv.zr);
-    zsrv_env_close(&ctx);
+    zclt_env_close(&ctx);
     return rc != 0;
 }
 

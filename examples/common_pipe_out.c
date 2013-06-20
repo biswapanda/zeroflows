@@ -75,7 +75,7 @@ on_input(void *c, int fd, int evt)
 
     zmq_msg_t msg;
     int l = strlen(s);
-    for (; g_ascii_isspace(s[l-1]) ;--l) {}
+    //for (; g_ascii_isspace(s[l-1]) ;--l) {}
     zmq_msg_init_size(&msg, l);
     memcpy(zmq_msg_data(&msg), s, zmq_msg_size(&msg));
     int rc = zmq_sendmsg(ctx.zsock->zs, &msg, ZMQ_DONTWAIT);

@@ -1,0 +1,16 @@
+{
+  "name": "sub2push",
+  "sockets": [
+    {
+      "name": "in",
+      "type": "zmq:SUB",
+      "connect": { "pull2pub.out": "all" },
+      "bind": [ "tcp://*:0" ]
+    },
+    {
+      "name": "out",
+      "type": "zmq:PUSH",
+      "bind": [ "tcp://*:0" ]
+    }
+  ]
+}

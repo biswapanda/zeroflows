@@ -1,5 +1,5 @@
-#ifndef ZEROFLOWS_common_pipe_out_h
-# define ZEROFLOWS_common_pipe_out_h 1
+#ifndef ZEROFLOWS_common_pipe_in_h
+# define ZEROFLOWS_common_pipe_in_h 1
 
 // Zero-Flows, actors plumbing with ZeroMQ & ZooKeeper
 // Copyright (C) 2013 Jean-Francois SMIGIELSKI and all the contributors
@@ -22,6 +22,6 @@
 
 # include <glib.h>
 
-int main_common_pipe_out(const gchar *ztype, int argc, char **argv);
+int main_common_pipe_in(const gchar *ztype, int argc, char **argv);
 
-#endif // ZEROFLOWS_common_pipe_out_h
+#endif // ZEROFLOWS_common_pipe_in_h

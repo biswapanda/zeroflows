@@ -1,0 +1,15 @@
+{
+  "name": "pull2pub",
+  "sockets": [
+    {
+      "name": "in",
+      "type": "zmq:PULL",
+      "bind": [ "tcp://*:0" ]
+    },
+    {
+      "name": "out",
+      "type": "zmq:PUB",
+      "bind": [ "tcp://*:0" ]
+    }
+  ]
+}
