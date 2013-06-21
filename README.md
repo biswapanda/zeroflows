@@ -1,6 +1,6 @@
-## Summary
+# Zero-Flows
 
-### Scalable, versatile & brokerless messages flows.
+## Scalable, versatile & brokerless messages flows.
 
 This is what **ZeroFlows** brings us!
 
@@ -16,10 +16,9 @@ A *service* is a set of public *endpoints*, some bond to network adresses, some 
 This is not a competitor for Actors frameworks as [Akka](http://akka.io) (even if it achieves the same goal), because it is much more raw and simplistic.
 
 
-## License
+## License ![License](http://www.gnu.org/graphics/lgplv3-88x31.png)
 
 **Zero-Flows** belongs to Jean-François SMIGIELSKI and all the contributors to the project, and is distributed under the terms of the [GNU Lesser General Public License](http://www.gnu.org/licenses/lgpl.html).
-![License](http://www.gnu.org/graphics/lgplv3-88x31.png)
 
 
 ## Third-party dependencies
