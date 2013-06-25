@@ -613,11 +613,19 @@ static void
 _zsock_bind(struct zsock_s *zsock, const gchar *endpoint)
 {
     int rc;
-    gchar url[256];
+    gchar *old, url[256];
     gsize urllen = 256;
 
-    if (0 > (rc = zmq_bind(zsock->zs, endpoint)))
+    if (NULL != (old = g_tree_lookup(zsock->bind_set, endpoint))) {
+        g_debug("ZSOCK already bind to [%s] : [%s}", endpoint, old);
         return;
+    }
+
+    if (0 > (rc = zmq_bind(zsock->zs, endpoint))) {
+        g_debug("ZSOCK bind error to [%s] : (%d) %s", endpoint,
+                errno, strerror(errno));
+        return;
+    }
 
     memset(url, 0, 256);
     if (0 > zmq_getsockopt(zsock->zs, ZMQ_LAST_ENDPOINT, url, &urllen))

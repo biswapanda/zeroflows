@@ -4,7 +4,7 @@
     {
       "name": "in",
       "type": "zmq:SUB",
-      "connect": { "pull2pub.out": "all" },
+      "connect": { "pull2pub.out":"all", "sub2pub.out":"all" },
       "bind": [ "tcp://*:0" ]
     },
     {
