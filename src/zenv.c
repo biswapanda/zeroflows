@@ -117,7 +117,6 @@ _zenv_get_zk_url(void)
 void
 zenv_init(struct zenv_s *zenv)
 {
-
     g_assert(zenv != NULL);
     memset(zenv, 0, sizeof(*zenv));
 
@@ -129,6 +128,8 @@ zenv_init(struct zenv_s *zenv)
     if (!zkurl)
         g_error("ZooKeeper not configured, found none of %s, %s, %s",
                 ZKFILE_LOCAL_PATH, ZKFILE_HOME_PATH, ZKFILE_GLOBAL_PATH);
+    g_strchomp(zkurl);
+
     if (_has_forbidden_chars(cell_env))
         g_error("CELL has invalid characters");
     if (_has_forbidden_chars(uuid_env))
@@ -146,6 +147,7 @@ zenv_init(struct zenv_s *zenv)
         uuid_randomize(zenv->uuid, 33);
     }
 
+    g_debug("ZK init(%s)", zkurl);
     zenv->zh = zookeeper_init(zkurl, NULL, 5000, NULL, NULL, 0);
     g_assert(zenv->zh != NULL);
 
@@ -168,19 +170,6 @@ zenv_close(struct zenv_s *zenv)
     zookeeper_close(zenv->zh);
 }
 
-struct zservice_s*
-zenv_create_service(struct zenv_s *zenv, const gchar *srvtype)
-{
-    g_assert(zenv != NULL);
-    g_assert(srvtype != NULL);
-
-    struct zservice_s *zsrv = zservice_create(zenv->zctx, zenv->zh, srvtype,
-            zenv->uuid, zenv->cell);
-    zservice_register_in_reactor(zenv->zr, zsrv);
-
-    return zsrv;
-}
-
 struct zsock_s*
 zenv_create_socket(struct zenv_s *zenv, const gchar *name, const gchar *ztype)
 {
@@ -190,20 +179,16 @@ zenv_create_socket(struct zenv_s *zenv, const gchar *name, const gchar *ztype)
 
     int zt = 0;
     GError *e = zsocket_resolve(ztype, &zt);
-    if (e != NULL) {
-        g_message("ZMQ socket error : (%d) %s", e->code, e->message);
-        g_clear_error(&e);
-        errno = EINVAL;
-        return NULL;
-    }
+    if (e != NULL)
+        g_error("Invalid socket type : (%d) %s", e->code, e->message);
 
     struct zsock_s *zsock = zsock_create(zenv->uuid, zenv->cell);
-    zsock->zs = zmq_socket(zenv->zctx, zt);
+    zsock_set_zmq_socket(zsock, zmq_socket(zenv->zctx, zt));
     zsock->zh = zenv->zh;
-    zsock->zctx = zenv->zctx;
     zsock->localname = g_strdup(name);
     zsock->fullname = g_strdup(name);
 
+    zsock_register_in_reactor(zenv->zr, zsock);
     return zsock;
 }
  

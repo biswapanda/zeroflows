@@ -39,15 +39,15 @@
 #endif
 
 #ifndef  ZKFILE_GLOBAL_PATH
-# define ZKFILE_GLOBAL_PATH "/etc/zeroconf.conf"
+# define ZKFILE_GLOBAL_PATH "/etc/zeroflows.conf"
 #endif
 
 #ifndef  ZKFILE_HOME_PATH
-# define ZKFILE_HOME_PATH "~/.zeroconf.conf"
+# define ZKFILE_HOME_PATH "~/.zeroflows.conf"
 #endif
 
 #ifndef  ZKFILE_LOCAL_PATH
-# define ZKFILE_LOCAL_PATH "./.zeroconf.conf"
+# define ZKFILE_LOCAL_PATH "./.zeroflows.conf"
 #endif
 
 #ifndef  UUID_KEY_ENV
@@ -60,6 +60,14 @@
 
 #ifndef  CELL_VALUE_DEFAULT
 # define CELL_VALUE_DEFAULT "none"
+#endif
+
+#ifndef  ZMQ_DEFAULT_SNDHVM
+# define ZMQ_DEFAULT_SNDHVM 10
+#endif
+
+#ifndef ZMQ_DEFAULT_RCVHWM
+# define ZMQ_DEFAULT_RCVHWM 10
 #endif
 
 #define ZK_DEBUG(FMT,...) g_log("ZK", G_LOG_LEVEL_DEBUG, FMT, ##__VA_ARGS__)

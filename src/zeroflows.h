@@ -66,29 +66,13 @@ struct cfg_srv_s* zservice_parse_config_from_path(const gchar *path);
 
 //------------------------------------------------------------------------------
 
-/**
- * TODO document
- */
-struct zconnect_s
-{
-    gchar *type;
-    gchar *policy;
-    gchar **urlv_current;
-
-    GPtrArray *urlv_new; // (struct cfg_listen_s*)
-    guint list_wanted;
-    guint list_pending;
-    guint get_pending;
-
-    struct zsock_s *zs; // the socket it belongs to
-};
+struct zreactor_s;
 
 /**
  * TODO document
  */
 struct zsock_s
 {
-    void *zctx; // a ZMQ context 
     void *zs; // ZMQ socket
     zhandle_t *zh; // ZooKeeper handle
 
@@ -125,8 +109,6 @@ struct zservice_s
     GTree *socks;
 };
 
-struct zreactor_s;
-
 /**
  * One structure to gather all the mandatory elements of a working context,
  * and to easily create zsock's and zservice's.
@@ -143,8 +125,9 @@ struct zenv_s
 
 //------------------------------------------------------------------------------
 
-/* Create the structure and _SOME_ of its internal field. */
 struct zsock_s* zsock_create(const gchar *uuid, const gchar *cell);
+
+void zsock_set_zmq_socket(struct zsock_s *zsock, void *zs);
 
 void zsock_destroy(struct zsock_s *zsock);
 
@@ -159,15 +142,13 @@ void zsock_connect(struct zsock_s *zsock, const gchar *type,
 
 //------------------------------------------------------------------------------
 
-struct zservice_s* zservice_create(void *zctx, zhandle_t *zh,
-        const gchar *srvtype, const gchar *uuid, const gchar *cell);
+struct zservice_s* zservice_create(struct zenv_s *zenv, const gchar *type);
 
 void zservice_destroy(struct zservice_s *zsrv);
 
 struct zsock_s* zservice_get_socket(struct zservice_s *zsrv, const gchar *n);
 
-void zservice_register_in_reactor(struct zreactor_s *zr,
-        struct zservice_s *zsrv);
+void zservice_reload_configuration(struct zservice_s *zsrv);
 
 void zservice_on_config(struct zservice_s *zsrv, gpointer u,
         void (*hook)(struct zservice_s*, gpointer));
@@ -199,9 +180,6 @@ void zreactor_add_zmq(struct zreactor_s *zr, void *s, int *evt,
 void zenv_init(struct zenv_s *zenv);
 
 void zenv_close(struct zenv_s *zenv);
-
-struct zservice_s* zenv_create_service(struct zenv_s *zenv,
-        const gchar *srvtype);
 
 struct zsock_s* zenv_create_socket(struct zenv_s *zenv, const gchar *name,
         const gchar *ztype);

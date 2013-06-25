@@ -51,8 +51,8 @@ logger_stderr(const gchar *log_domain, GLogLevelFlags log_level,
 
     (void) user_data;
     g_get_current_time(&tv);
-    fprintf(stdout, "%ld.%06ld %-8s %04X %04X %s\n",
-            tv.tv_sec, tv.tv_usec,
+    fprintf(stdout, "%ld.%03ld %-12s %04X %04X %s\n",
+            tv.tv_sec, tv.tv_usec / 1000,
             log_domain ? log_domain : "-",
             log_level,
             ((b.u[0] ^ b.u[1]) ^ b.u[2]) ^ b.u[3],
@@ -93,7 +93,7 @@ void
 zsrv_env_init(const gchar *type, struct zsrv_env_s *ctx)
 {
     zenv_init(&ctx->zenv);
-    ctx->zsrv = zenv_create_service(&ctx->zenv, type);
+    ctx->zsrv = zservice_create(&ctx->zenv, type);
     g_assert(ctx->zsrv != NULL);
 }
 
@@ -116,7 +116,6 @@ zclt_env_init(const gchar *typename, const gchar *target, struct zclt_env_s *ctx
     g_assert(ctx->zsock != NULL);
 
     zsock_connect(ctx->zsock, target, "all");
-    zsock_register_in_reactor(ctx->zenv.zr, ctx->zsock);
 }
 
 void

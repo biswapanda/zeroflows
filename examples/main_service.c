@@ -63,7 +63,7 @@ _on_event_in(struct zsock_s *zs)
             g_debug("ZMQ rco = %d : (%d) %s", rco, errno, strerror(errno));
         zmq_msg_close(&msg);
 
-        g_assert(rci == rco);
+        //g_assert(rci == rco);
     }
 
     g_debug("ZSOCK [%s] managed %u / %"G_GSIZE_FORMAT, zs->fullname,
